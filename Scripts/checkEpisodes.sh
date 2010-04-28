@@ -106,7 +106,7 @@ currentNumber=-1
 #  - seconc grep -> removes each line which has something else than a number
 #  - sort numerically
 moreThanOneEpisode=0
-for episodeNumberRaw in $( ls -1 "$directory" |grep -re "[0-9].*$pattern" |sed -e 's/.*[^0-9.[-]\([0-9][0-9]*[-]*[0-9][0-9]*\)[^]a-fA-F0-9].*/\1/g;' |grep -v "[^0-9-]" |sort -n ); do
+for episodeNumberRaw in $( find "$directory" -type f |grep -v "directory.lock" |grep -re "[0-9]" |sed -e 's/H264//g;s/.*[^0-9.[-]\([0-9][0-9]*[-]*[0-9][0-9]*\)[^]a-fA-F0-9].*/\1/g;' |grep -v "[^0-9-]" |sort -n ); do
 
   # Prints information if in debug mode.
   if [ $debug = 1 ]; then
@@ -120,6 +120,9 @@ for episodeNumberRaw in $( ls -1 "$directory" |grep -re "[0-9].*$pattern" |sed -
   else
     episodeNumber=$episodeNumberRaw
   fi
+
+  # safe-guard.
+  [ $episodeNumber -gt 600 ] && echo "Ignoring too big episode number $episodeNumber ..." && continue
 
   # Updates the current episode number.
   if [ $currentNumber -eq -1 ]; then
