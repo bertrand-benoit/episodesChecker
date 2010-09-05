@@ -106,7 +106,7 @@ currentNumber=-1
 #  - seconc grep -> removes each line which has something else than a number
 #  - sort numerically
 moreThanOneEpisode=0
-for episodeNumberRaw in $( find "$directory" -maxdepth 1 -type f |grep -v "directory.lock" |grep -re "[0-9]" |sed -e 's/H264//g;s/(x264//g;s/.*[^0-9.[-]\([0-9][0-9]*[-]*[0-9][0-9]*\)[^]a-fA-F0-9].*/\1/g;' |grep -v "[^0-9-]" |sort -n ); do
+for episodeNumberRaw in $( find "$directory" -maxdepth 1 -type f |grep -v "directory.lock" |grep -re "[0-9]" |sed -e 's/H264//g;s/(x264//g;s/Narvallo94//g;s/.*[^0-9.[-]\([0-9][0-9]*[-]*[0-9][0-9]*\)[^]a-fA-F0-9].*/\1/g;' |grep -v "[^0-9-]" |sort -n ); do
 
   # Prints information if in debug mode.
   if [ $debug = 1 ]; then
