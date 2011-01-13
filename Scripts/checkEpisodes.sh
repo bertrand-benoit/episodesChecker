@@ -109,8 +109,8 @@ rm -f "$episodeNumberFile"
 for filePathRaw in $( find "$directory" -maxdepth 1 -type f |grep -v "directory.lock" |grep -re "\/[^/]*[0-9][^/]*$" |sed -e 's/[ ]/€/g;' ); do
   filePath=$( echo "$filePathRaw" |sed -e 's/€/ /g;' )
   episodeNumber=$( extractEpisodeNumber "$filePath" )
-  isNumber "$episodeNumber" && echo "$episodeNumber" >> "$episodeNumberFile" && continue
-  echo "Unable to extract episode number from '$filePath' (result: $episodeNumber)"
+  isCompoundedNumber "$episodeNumber" && echo "$episodeNumber" >> "$episodeNumberFile" && continue
+  echo "Unable to extract (compounded) episode number from '$filePath' (result: $episodeNumber)"
 done
 
 # Works on episode number of the temporary file.
