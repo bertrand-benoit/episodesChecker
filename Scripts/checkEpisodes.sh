@@ -115,7 +115,7 @@ done
 
 # Works on episode number of the temporary file.
 moreThanOneEpisode=0
-for episodeNumberRaw in $( cat $episodeNumberFile |sort ); do
+for episodeNumberRaw in $( cat $episodeNumberFile |sort -n ); do
   # Prints information if in debug mode.
   if [ $debug = 1 ]; then
     echo -e "episodeNumber '$episodeNumberRaw'"
