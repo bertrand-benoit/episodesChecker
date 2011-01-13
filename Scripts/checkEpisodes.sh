@@ -1,10 +1,15 @@
 #!/bin/bash
 #
 # Author: Bertrand BENOIT <bertrand.benoit@bsquare.no-ip.org>
-# Version: 1.2
+# Version: 1.3
 # Description: check if all episodes are consecutive into a specified directory.
 #
 # Usage: see usage function.
+
+path=$( which "$0" )
+currentDirectory=$( dirname "$path" )
+source "$currentDirectory/commonFunctions"
+episodeNumberFile="/tmp/checkEpisodeNumber.tmp"
 
 #####################################################
 #                Defines functions.
@@ -99,15 +104,18 @@ currentNumber=-1
 #####################################################
 #                Performs checks.
 #####################################################
-# For each corresponding file.
-# Algorithm:
-#  - ls + grep -> gets files corresponding to pattern, one per line
-#  - first sed -> attempts extracting episode number (do not allow a dot before the episode number)
-#  - seconc grep -> removes each line which has something else than a number
-#  - sort numerically
-moreThanOneEpisode=0
-for episodeNumberRaw in $( find "$directory" -maxdepth 1 -type f |grep -v "directory.lock" |grep -re "[0-9]" |sed -e 's/H264//g;s/(x264//g;s/Narvallo94//g;s/Drago3009//g;s/.*[^0-9.[-]\([0-9][0-9]*[-]*[0-9][0-9]*\)[^]a-fA-F0-9].*/\1/g;' |grep -v "[^0-9-]" |sort -n ); do
+# Extracts episode number of files an outputs them in a temporary file.
+rm -f "$episodeNumberFile"
+for filePathRaw in $( find "$directory" -maxdepth 1 -type f |grep -v "directory.lock" |grep -re "[0-9]" |sed -e 's/[ ]/€/g;' ); do
+  filePath=$( echo "$filePathRaw" |sed -e 's/€/ /g;' )
+  episodeNumber=$( extractEpisodeNumber "$filePath" )
+  isNumber "$episodeNumber" && echo "$episodeNumber" >> "$episodeNumberFile" && continue
+  echo "Unable to extract episode number from '$filePath' (result: $episodeNumber)"
+done
 
+# Works on episode number of the temporary file.
+moreThanOneEpisode=0
+for episodeNumberRaw in $( cat $episodeNumberFile |sort ); do
   # Prints information if in debug mode.
   if [ $debug = 1 ]; then
     echo -e "episodeNumber '$episodeNumberRaw'"
