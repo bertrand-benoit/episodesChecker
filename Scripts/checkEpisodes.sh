@@ -106,7 +106,7 @@ currentNumber=-1
 #####################################################
 # Extracts episode number of files an outputs them in a temporary file.
 rm -f "$episodeNumberFile"
-for filePathRaw in $( find "$directory" -maxdepth 1 -type f |grep -v "directory.lock" |grep -re "[0-9]" |sed -e 's/[ ]/€/g;' ); do
+for filePathRaw in $( find "$directory" -maxdepth 1 -type f |grep -v "directory.lock" |grep -re "\/[^/]*[0-9][^/]*$" |sed -e 's/[ ]/€/g;' ); do
   filePath=$( echo "$filePathRaw" |sed -e 's/€/ /g;' )
   episodeNumber=$( extractEpisodeNumber "$filePath" )
   isNumber "$episodeNumber" && echo "$episodeNumber" >> "$episodeNumberFile" && continue
