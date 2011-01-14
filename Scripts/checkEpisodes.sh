@@ -6,6 +6,9 @@
 #
 # Usage: see usage function.
 
+#####################################################
+#                General configuration.
+#####################################################
 path=$( which "$0" )
 currentDirectory=$( dirname "$path" )
 source "$currentDirectory/commonFunctions"
