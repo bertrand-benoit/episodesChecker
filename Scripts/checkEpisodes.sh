@@ -100,6 +100,7 @@ fi
 #####################################################
 currentNumber=-1
 
+[ ! -d "$directory" ] && echo "Directory '$directory' not found. Exiting" && exit 1
 
 #####################################################
 #                Performs checks.
