@@ -117,6 +117,9 @@ for filePathRaw in $( find "$directory" -maxdepth 1 -type f |grep -v "directory.
   echo "Unable to extract (compounded) episode number from '$filePath' (result: $episodeNumber)"
 done
 
+# Ensures there is result.
+[ ! -f "$episodeNumberFile" ] && echo "none" && exit 0
+
 # Works on episode number of the temporary file.
 moreThanOneEpisode=0
 for episodeNumberRaw in $( cat $episodeNumberFile |sort -n ); do
