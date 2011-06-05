@@ -19,12 +19,13 @@ episodeNumberFile="/tmp/checkEpisodeNumber.tmp"
 #####################################################
 # usage : usage
 function usage() {
-  echo "Usage: $0 [-h|--help] --dir <directory> [--pattern <pattern>] [--debug] [--nocolor]"
+  echo "Usage: $0 [-h|--help] --dir <directory> [--pattern <pattern>] [--debug] [--nocolor] [--warning]"
   echo -e "-h|--help\tshow this help"
   echo -e "<directory>\tdirectory to manage"
   echo -e "<pattern>\tepisode files pattern (default is 'avi')"
   echo -e "--debug\tshow found line and links and does nothing more"
   echo -e "--nocolor\tdisable the warning color"
+  echo -e "--warning\tshow warning message (more legible), and disable the warning color"
   exit 0
 }
 
@@ -42,6 +43,7 @@ function showEpisode() {
     if [ $color -eq 1 ]; then
       echo -ne "\033[31m\033[4m"
     else
+      [ $warningMessage -eq 1 ] && echo -ne "WARNING "
       echo -ne "*"
     fi
   fi
@@ -69,11 +71,15 @@ function showEpisode() {
 #####################################################
 debug=0
 color=1
+warningMessage=0
 pattern="avi"
 while [ "$1" != "" ]; do
   if [ "$1" == "--debug" ]; then
     debug=1
   elif [ "$1" == "--nocolor" ]; then
+    color=0
+  elif [ "$1" == "--warning" ]; then
+    warningMessage=1
     color=0
   elif [ "$1" == "--dir" ]; then
     shift
@@ -115,7 +121,7 @@ for filePathRaw in $( find "$directory" -maxdepth 1 -type f |grep -v "directory.
   fileName=$( basename "$filePath" )
   episodeNumber=$( extractEpisodeNumber "$fileName" )
   isCompoundedNumber "$episodeNumber" && echo "$episodeNumber" >> "$episodeNumberFile" && continue
-  echo "Unable to extract (single or compounded) episode number from '$fileName' (result: $episodeNumber)"
+  echo "WARNING: Unable to extract (single or compounded) episode number from '$fileName' (result: $episodeNumber)"
 done
 
 # Ensures there is result.
@@ -138,7 +144,7 @@ for episodeNumberRaw in $( cat $episodeNumberFile |sort -n ); do
   fi
 
   # safe-guard.
-  [ $episodeNumber -gt 600 ] && echo "Ignoring too big episode number $episodeNumber ..." && continue
+  [ $episodeNumber -gt 600 ] && echo "WARNING: Ignoring too big episode number $episodeNumber ..." && continue
 
   # Updates the current episode number.
   if [ $currentNumber -eq -1 ]; then
