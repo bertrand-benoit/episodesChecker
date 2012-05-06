@@ -26,6 +26,7 @@ function usage() {
   echo -e "--debug\tshow found line and links and does nothing more"
   echo -e "--nocolor\tdisable the warning color"
   echo -e "--warning\tshow warning message (more legible), and disable the warning color"
+  echo -e "--checkFirst\tcheck first number which must be 1, show warning message if it is NOT the case"
   exit 0
 }
 
@@ -72,6 +73,7 @@ function showEpisode() {
 debug=0
 color=1
 warningMessage=0
+checkFirstNumber=0
 pattern="avi"
 while [ "$1" != "" ]; do
   if [ "$1" == "--debug" ]; then
@@ -80,6 +82,9 @@ while [ "$1" != "" ]; do
     color=0
   elif [ "$1" == "--warning" ]; then
     warningMessage=1
+    color=0
+  elif [ "$1" == "--checkFirst" ]; then
+    checkFirstNumber=1
     color=0
   elif [ "$1" == "--dir" ]; then
     shift
@@ -126,6 +131,12 @@ done
 
 # Ensures there is result.
 [ ! -f "$episodeNumberFile" ] && echo "none" && exit 0
+
+# Ensures the first number is 1 (or a compounded number beginning with 1).
+if [ $checkFirstNumber -eq 1 ]; then
+  firstNumber=$( cat $episodeNumberFile |sort -n |head -n 1 |sed -e "s/^\([^-]*\)-.*$/\1/;" )
+  [ $( echo "$firstNumber" |grep -cre "^[0]*1" ) -lt 1 ] && echo "WARNING: first number is NOT 1 ($firstNumber)"
+fi
 
 # Works on episode number of the temporary file.
 moreThanOneEpisode=0
