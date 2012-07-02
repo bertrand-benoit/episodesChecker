@@ -119,7 +119,7 @@ function checkDirectory() {
 
   # Extracts episode number of files an outputs them in a temporary file.
   rm -f "$episodeNumberFile"
-  for filePathRaw in $( find "$_directory" -maxdepth 1 -type f |grep -v "directory.lock" |grep -re "\/[^/]*[0-9][^/]*$" |sed -e 's/[ ]/€/g;' ); do
+  for filePathRaw in $( find "$_directory" -maxdepth 1 -type f |grep -v "directory.lock" |grep -e "\/[^/]*[0-9][^/]*$" |sed -e 's/[ ]/€/g;' ); do
     filePath=$( echo "$filePathRaw" |sed -e 's/€/ /g;' )
     fileName=$( basename "$filePath" )
     episodeNumber=$( extractEpisodeNumber "$fileName" )
@@ -133,7 +133,7 @@ function checkDirectory() {
   # Ensures the first number is 1 (or a compounded number beginning with 1).
   if [ $checkFirstNumber -eq 1 ]; then
     firstNumber=$( cat $episodeNumberFile |sort -n |head -n 1 |sed -e "s/^\([^-]*\)-.*$/\1/;" )
-    [ $( echo "$firstNumber" |grep -cre "^[0]*1" ) -lt 1 ] && echo "WARNING: first number is NOT 1 ($firstNumber)"
+    [ $( echo "$firstNumber" |grep -ce "^[0]*1" ) -lt 1 ] && echo "WARNING: first number is NOT 1 ($firstNumber)"
   fi
 
   # Works on episode number of the temporary file.
