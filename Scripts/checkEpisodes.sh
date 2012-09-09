@@ -211,7 +211,7 @@ if [ $allDir -eq 0 ]; then
   checkDirectory "$directory"
 else
   # Works on any found sub-directories.
-  for subDirRaw in $( find "$directory" -type d |sed -e 's/[ \t]/€/g;' ); do
+  for subDirRaw in $( find "$directory" -type d |grep -v "^$directory\$" |sed -e 's/[ \t]/€/g;' |sort ); do
     subDir=$( echo "$subDirRaw" |sed -e 's/€/ /g;' )
     subDirName=$( echo "$subDir" |sed -e 's/\/mnt\/[^\/]*\///' )
     echo -ne "Checking $subDirName: "
