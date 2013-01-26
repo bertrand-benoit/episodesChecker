@@ -123,6 +123,7 @@ function checkDirectory() {
     filePath=$( echo "$filePathRaw" |sed -e 's/€/ /g;' )
     fileName=$( basename "$filePath" )
     episodeNumber=$( extractEpisodeNumber "$fileName" )
+    # TODO: add filename in file, and extracts it after that, to improve debug info
     isCompoundedNumber "$episodeNumber" && echo "$episodeNumber" >> "$episodeNumberFile" && continue
     echo "WARNING: Unable to extract (single or compounded) episode number from '$fileName' (result: $episodeNumber)"
   done
@@ -153,7 +154,7 @@ function checkDirectory() {
     fi
 
     # safe-guard.
-    [ $episodeNumber -gt 600 ] && echo "WARNING: Ignoring too big episode number $episodeNumber ..." && continue
+    [ $episodeNumber -gt 650 ] && echo "WARNING: Ignoring too big episode number $episodeNumber ..." && continue
 
     # Updates the current episode number.
     if [ $currentNumber -eq -1 ]; then
