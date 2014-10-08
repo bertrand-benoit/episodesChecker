@@ -154,7 +154,7 @@ function checkDirectory() {
     fi
 
     # safe-guard.
-    [ $episodeNumber -gt 650 ] && echo "WARNING: Ignoring too big episode number $episodeNumber ..." && continue
+    [ $episodeNumber -gt 750 ] && echo "WARNING: Ignoring too big episode number $episodeNumber ..." && continue
 
     # Updates the current episode number.
     if [ $currentNumber -eq -1 ]; then
