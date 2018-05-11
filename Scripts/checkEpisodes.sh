@@ -14,6 +14,8 @@ currentDirectory=$( dirname "$path" )
 source "$currentDirectory/commonFunctions"
 episodeNumberFile="/tmp/checkEpisodeNumber.tmp"
 
+GREATER_EPISODE_NUMBER=999
+
 #####################################################
 #                Command line management.
 #####################################################
@@ -154,7 +156,7 @@ function checkDirectory() {
     fi
 
     # safe-guard.
-    [ $episodeNumber -gt 750 ] && echo "WARNING: Ignoring too big episode number $episodeNumber ..." && continue
+    [ $episodeNumber -gt $GREATER_EPISODE_NUMBER ] && echo "WARNING: Ignoring too big episode number $episodeNumber ..." && continue
 
     # Updates the current episode number.
     if [ $currentNumber -eq -1 ]; then
