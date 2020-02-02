@@ -12,6 +12,7 @@
 path=$( which "$0" )
 currentDirectory=$( dirname "$path" )
 source "$currentDirectory/commonFunctions"
+#source /home/bsquare/_gitRepositories/scripts-common/utilities.sh
 episodeNumberFile="/tmp/checkEpisodeNumber.tmp"
 
 GREATER_EPISODE_NUMBER=999
@@ -38,7 +39,7 @@ warningMessage=0
 checkFirstNumber=0
 allDir=0
 pattern="avi"
-while [ "$1" != "" ]; do
+while [ "${1:-}" != "" ]; do
   if [ "$1" == "--debug" ]; then
     debug=1
   elif [ "$1" == "--nocolor" ]; then
