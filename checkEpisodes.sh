@@ -33,27 +33,22 @@ REMOVE_FILENAME_MATCHING_PARTS="$LAST_READ_CONFIG"
 #####################################################
 # usage : usage
 function usage() {
-  echo "Usage: $0 [-h|--help] --dir|--allDir <directory> [--debug] [--nocolor] [--warning]"
+  echo "Usage: $0 [-h|--help] --dir|--allDir <directory> [--debug] [--nocolor]"
   echo -e "-h|--help\tshow this help"
-  echo -e "<directory>\tdirectory to manage (with --dir), or parent directory (with --allDir, to check ALL sub-directories !)"
+  echo -e "<directory>\tdirectory to manage (with --dir), or parent directory (with --allDir, to check all its sub-directories)"
   echo -e "--debug\t\tshow found line and links and does nothing more"
   echo -e "--nocolor\tdisable the warning color"
-  echo -e "--warning\tshow warning message (more legible), and disable the warning color"
   echo -e "--checkFirst\tcheck first number which must be 1, show warning message if it is NOT the case"
 }
 
 debug=0
 color=1
-warningMessage=0
 checkFirstNumber=0
 allDir=0
 while [ "${1:-}" != "" ]; do
   if [ "$1" == "--debug" ]; then
     debug=1
   elif [ "$1" == "--nocolor" ]; then
-    color=0
-  elif [ "$1" == "--warning" ]; then
-    warningMessage=1
     color=0
   elif [ "$1" == "--checkFirst" ]; then
     checkFirstNumber=1
@@ -89,18 +84,11 @@ function showEpisode() {
   local _episodeNumber="$1" _position="$2" _warning="${3:-}"
 
   # Prefixs if needed.
-  if [ "$_position" -ne 1 ]; then
-    echo -ne " . "
-  fi
+  [ "$_position" -ne 1 ] && echo -ne " . "
 
   # Enhances text if needed.
   if [ "$_warning" -eq 1 ]; then
-    if [ $color -eq 1 ]; then
-      echo -ne "\033[31m\033[4m"
-    else
-      [ $warningMessage -eq 1 ] && echo -ne "WARNING "
-      echo -ne "*"
-    fi
+    [ $color -eq 1 ] && echo -ne "\033[31m\033[4m" || echo -ne "*"
   fi
 
   # Shows episode number.
@@ -108,17 +96,11 @@ function showEpisode() {
 
   # Enhances text if needed.
   if [ "$_warning" -eq 1 ]; then
-    if [ $color -eq 1 ]; then
-      echo -ne "\033[0m"
-    else
-      echo -ne "*"
-    fi
+    [ $color -eq 1 ] && echo -ne "\033[0m" || echo -ne "*"
   fi
 
   # Enhances text if needed.
-  if [ "$_position" -eq 2 ]; then
-    echo -ne "\n"
-  fi
+  [ "$_position" -eq 2 ] && echo -ne "\n"
 }
 
 # usage: checkDirectory <directory>
@@ -150,9 +132,7 @@ function checkDirectory() {
   moreThanOneEpisode=0
   while IFS= read -r episodeNumberRaw; do
     # Prints information if in debug mode.
-    if [ "$debug" = 1 ]; then
-      echo -e "episodeNumber '$episodeNumberRaw'"
-    fi
+    [ "$debug" = 1 ] && echo -ne " [found episode number '$episodeNumberRaw'] "
 
     # Manages potential '-' into episode number(s), taking the last one.
     lastEpisodeNumber=$( echo "$episodeNumberRaw" |grep "-" |sed -e "s/.*-\([0-9]*\)/\1/;" )
@@ -167,9 +147,8 @@ function checkDirectory() {
 
     # Updates the current episode number.
     if [ "$currentNumber" -eq -1 ]; then
-        currentNumber="$episodeNumber"
-        showEpisode "$episodeNumberRaw" 1 0
-
+      currentNumber="$episodeNumber"
+      showEpisode "$episodeNumberRaw" 1 0
       continue
     elif [ "$currentNumber" -ge "$episodeNumber" ]; then
       # Continues if the current episode number has already been managed (if there is several
