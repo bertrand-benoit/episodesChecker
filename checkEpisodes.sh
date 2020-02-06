@@ -1,21 +1,32 @@
 #!/bin/bash
 #
 # Author: Bertrand BENOIT <bertrand.benoit@bsquare.no-ip.org>
-# Version: 1.3
-# Description: check if all episodes are consecutive into a specified directory.
+# Version: 2.0
+# Description: checks all episodes of a directory, and shows consecutive sequences.
+#              An option allows to request the same on all sub-directories of a directory.
 #
 # Usage: see usage function.
 
 #####################################################
 #                General configuration.
 #####################################################
-path=$( which "$0" )
-currentDirectory=$( dirname "$path" )
-source "$currentDirectory/commonFunctions"
-#source /home/bsquare/_gitRepositories/scripts-common/utilities.sh
-episodeNumberFile="/tmp/checkEpisodeNumber.tmp"
+export CATEGORY="checkEpisodes"
+export DEBUG_UTILITIES=0
 
-GREATER_EPISODE_NUMBER=999
+currentDir=$( dirname "$( command -v "$0" )" )
+export GLOBAL_CONFIG_FILE="$currentDir/default.conf"
+export CONFIG_FILE="${HOME:-/home/$( whoami )}/.config/checkEpisodes.conf"
+
+[ -s "$SCRIPTS_COMMON_PATH" ] && . "$SCRIPTS_COMMON_PATH"
+
+checkAndSetConfig "file.episodeNumber" "$CONFIG_TYPE_OPTION"
+episodeNumberFile="$LAST_READ_CONFIG"
+
+checkAndSetConfig "limit.episodeNumber" "$CONFIG_TYPE_OPTION"
+GREATER_EPISODE_NUMBER="$LAST_READ_CONFIG"
+
+checkAndSetConfig "patterns.removeMatchingParts" "$CONFIG_TYPE_OPTION"
+REMOVE_FILENAME_MATCHING_PARTS="$LAST_READ_CONFIG"
 
 #####################################################
 #                Command line management.
@@ -29,7 +40,6 @@ function usage() {
   echo -e "--nocolor\tdisable the warning color"
   echo -e "--warning\tshow warning message (more legible), and disable the warning color"
   echo -e "--checkFirst\tcheck first number which must be 1, show warning message if it is NOT the case"
-  exit 1
 }
 
 debug=0
@@ -56,18 +66,18 @@ while [ "${1:-}" != "" ]; do
     directory="$1"
     allDir=1
   elif [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
-    usage;
+    usage && exit 0
   else
-    echo "Unknown parameter '$1'"
-    usage;
+    usage
+    errorMessage "Unknown parameter '$1'"
   fi
 
   shift
 done
 
 # Ensures needed variables are defined.
-[ -z "$directory" ] && echo "Must defined the directory to manage." && usage
-[ ! -d "$directory" ] && echo "Directory '$directory' not found. Exiting" && usage
+[ -z "$directory" ] && usage && errorMessage "You must specify the directory to manage."
+[ ! -d "$directory" ] && usage && errorMessage "The specified directory '$directory' does not exist."
 
 #####################################################
 #                Functions.
@@ -121,19 +131,19 @@ function checkDirectory() {
   rm -f "$episodeNumberFile"
   while IFS= read -r filePath; do
     fileName=$( basename "$filePath" )
-    episodeNumber=$( extractEpisodeNumber "$fileName" )
+    episodeNumber=$( extractNumberSequenceFromName "$fileName" "$REMOVE_FILENAME_MATCHING_PARTS" )
     # TODO: add filename in file, and extracts it after that, to improve debug info
     isCompoundedNumber "$episodeNumber" && echo "$episodeNumber" >> "$episodeNumberFile" && continue
-    echo "WARNING: Unable to extract (single or compounded) episode number from '$fileName' (result: $episodeNumber)"
+    echo "" && warning "Unable to extract (single or compounded) episode number from '$fileName' (result: $episodeNumber)"
   done < <(find "$_directory" -maxdepth 1 -type f |grep -v "directory.lock" |grep -e "\/[^/]*[0-9][^/]*$")
 
   # Ensures there is result.
-  [ ! -f "$episodeNumberFile" ] && echo "none" && return 0
+  [ ! -f "$episodeNumberFile" ] && warning "No episode found." && return 0
 
   # Ensures the first number is 1 (or a compounded number beginning with 1).
   if [ $checkFirstNumber -eq 1 ]; then
     firstNumber=$( sort -n "$episodeNumberFile" |head -n 1 |sed -e "s/^\([^-]*\)-.*$/\1/;" )
-    [ "$( grep -ce "^[0]*1"<<<"$firstNumber" )" -lt 1 ] && echo "WARNING: first number is NOT 1 ($firstNumber)"
+    [ "$( grep -ce "^[0]*1"<<<"$firstNumber" )" -lt 1 ] && warning "first number is NOT 1 ($firstNumber)"
   fi
 
   # Works on episode number of the temporary file.
@@ -153,7 +163,7 @@ function checkDirectory() {
     fi
 
     # safe-guard.
-    [ "$episodeNumber" -gt "$GREATER_EPISODE_NUMBER" ] && echo "WARNING: Ignoring too big episode number $episodeNumber ..." && continue
+    [ "$episodeNumber" -gt "$GREATER_EPISODE_NUMBER" ] && echo "" && warning "Ignoring too big episode number $episodeNumber ..." && continue
 
     # Updates the current episode number.
     if [ "$currentNumber" -eq -1 ]; then
@@ -191,7 +201,7 @@ function checkDirectory() {
 
   # Shows the last episode number if any, "none" otherwise.
   if [ "$currentNumber" -eq -1 ]; then
-    echo "none."
+    warning "No episode found."
   else
     if [ "$moreThanOneEpisode" -eq 1 ] && [ -z "$lastEpisodeNumber" ]; then
       # Shows the last episode (if not the only one, which has already been shown).
@@ -201,14 +211,6 @@ function checkDirectory() {
       echo ""
     fi
   fi
-}
-
-# usage: extractEpisodeNumber <file name>
-function extractEpisodeNumber() {
-  # - finally extracts numbers
-  echo "$1" \
-  |sed -e 's/^.*[^0-9.[-]\([0-9][0-9]*[-]*[0-9][0-9]*\)[^]a-fA-F0-9].*$/\1/g;' \
-  |sed -e 's/^0*//g;s/-0*/-/g;s/^.*[.]\([0-9][0-9]*[-]*[0-9]*\)[.].*$/\1/g;'
 }
 
 #####################################################
@@ -221,7 +223,7 @@ else
   # Works on any found sub-directories.
   while IFS= read -r subDir; do
     subDirName=$( echo "$subDir" |sed -e 's/\/mnt\/[^\/]*\///' )
-    echo -ne "Checking $subDirName: "
+    writeMessageSL "Checking $subDirName: "
     checkDirectory "$subDir"
   done < <(find "$directory" -maxdepth 1 -type d |grep -v "^$directory\$" |sort)
 fi
