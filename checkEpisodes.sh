@@ -135,11 +135,17 @@ function checkDirectory() {
     [ "$debug" = 1 ] && echo -ne " [found episode number '$episodeNumberRaw'] "
 
     # Manages potential '-' into episode number(s), taking the last one.
-    lastEpisodeNumber=$( echo "$episodeNumberRaw" |grep "-" |sed -e "s/.*-\([0-9]*\)/\1/;" )
-    if [ -n "$lastEpisodeNumber" ]; then
-      episodeNumber="$lastEpisodeNumber"
-    else
+    if [ "$( grep -ce "-" <<< "$episodeNumberRaw")" -eq 0 ]; then
+      # It is a simple number.
+      lastEpisodeNumber=""
       episodeNumber="$episodeNumberRaw"
+    else
+      # It is a compounded number.
+      firstEpisodeNumber=$( sed -e "s/^\([0-9]*\)-.*$/\1/;" <<< "$episodeNumberRaw" )
+      lastEpisodeNumber=$( sed -e "s/^.*-\([0-9]*\)$/\1/;" <<< "$episodeNumberRaw" )
+      # In any case, register the first episode number, the last one
+      #  will be manage at end of this loop.
+      episodeNumber="$firstEpisodeNumber"
     fi
 
     # safe-guard.
@@ -147,24 +153,18 @@ function checkDirectory() {
 
     # Updates the current episode number.
     if [ "$currentNumber" -eq -1 ]; then
-      currentNumber="$episodeNumber"
+      currentNumber="${lastEpisodeNumber:-$episodeNumber}"
       showEpisode "$episodeNumberRaw" 1 0
       continue
     elif [ "$currentNumber" -ge "$episodeNumber" ]; then
       # Continues if the current episode number has already been managed (if there is several
       #  files having the same number for instance).
+      currentNumber="${lastEpisodeNumber:-$episodeNumber}"
       continue
     fi
 
     # Defines there is more than one found episode.
     moreThanOneEpisode=1
-
-    # Checks if there was a '-'.
-    if [ -n "$lastEpisodeNumber" ]; then
-      showEpisode "$episodeNumberRaw" 0 0
-      currentNumber="$lastEpisodeNumber"
-      continue
-    fi
 
     # Performs check.
     awaitedNumber=$((currentNumber + 1))
@@ -175,6 +175,11 @@ function checkDirectory() {
         showEpisode "$currentNumber" 0 1
         currentNumber=$((currentNumber + 1))
       done
+    fi
+
+    # Updates to last episode number, in case of compounded number.
+    if [ -n "$lastEpisodeNumber" ]; then
+      currentNumber="$lastEpisodeNumber"
     fi
   done < <(sort -n "$episodeNumberFile")
 
