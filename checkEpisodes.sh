@@ -28,22 +28,30 @@ GREATER_EPISODE_NUMBER="$LAST_READ_CONFIG"
 checkAndSetConfig "patterns.removeMatchingParts" "$CONFIG_TYPE_OPTION"
 REMOVE_FILENAME_MATCHING_PARTS="$LAST_READ_CONFIG"
 
+checkAndSetConfig "options.default.checkFirstNumber" "$CONFIG_TYPE_OPTION"
+checkFirstNumber="$LAST_READ_CONFIG"
+
+checkAndSetConfig "options.default.showAllNumber" "$CONFIG_TYPE_OPTION"
+showAllNumber="$LAST_READ_CONFIG"
+
+checkAndSetConfig "options.default.color" "$CONFIG_TYPE_OPTION"
+color="$LAST_READ_CONFIG"
+
 #####################################################
 #                Command line management.
 #####################################################
 # usage : usage
 function usage() {
-  echo "Usage: $0 [-h|--help] --dir|--allDir <directory> [--debug] [--nocolor]"
+  echo "Usage: $0 [-h|--help] --dir|--allDir <directory> [--checkFirst] [--showAllNumber] [--debug] [--nocolor]"
   echo -e "-h|--help\tshow this help"
   echo -e "<directory>\tdirectory to manage (with --dir), or parent directory (with --allDir, to check all its sub-directories)"
   echo -e "--debug\t\tshow found line and links and does nothing more"
   echo -e "--nocolor\tdisable the warning color"
   echo -e "--checkFirst\tcheck first number which must be 1, show warning message if it is NOT the case"
+  echo -e "--showAllNumber\tshow found number, in addition to missing ones (can be verbose)"
 }
 
 debug=0
-color=1
-checkFirstNumber=0
 allDir=0
 while [ "${1:-}" != "" ]; do
   if [ "$1" == "--debug" ]; then
@@ -52,7 +60,8 @@ while [ "${1:-}" != "" ]; do
     color=0
   elif [ "$1" == "--checkFirst" ]; then
     checkFirstNumber=1
-    color=0
+  elif [ "$1" == "--showAllNumber" ]; then
+    showAllNumber=1
   elif [ "$1" == "--dir" ]; then
     shift
     directory="$1"
@@ -177,6 +186,8 @@ function checkDirectory() {
       done
     fi
 
+    [ "$showAllNumber" -eq 1 ] && showEpisode "$episodeNumberRaw" 0 0
+
     # Updates to last episode number, in case of compounded number.
     if [ -n "$lastEpisodeNumber" ]; then
       currentNumber="$lastEpisodeNumber"
@@ -189,7 +200,7 @@ function checkDirectory() {
   else
     if [ "$moreThanOneEpisode" -eq 1 ] && [ -z "$lastEpisodeNumber" ]; then
       # Shows the last episode (if not the only one, which has already been shown).
-      showEpisode "$currentNumber" 2 0
+      [ "$showAllNumber" -eq 0 ] && showEpisode "$currentNumber" 2 0 || echo ""
     else
       # Moves to next line.
       echo ""
