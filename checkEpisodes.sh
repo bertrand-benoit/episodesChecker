@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Author: Bertrand BENOIT <bertrand.benoit@bsquare.no-ip.org>
+# Author: Bertrand Benoit <mailto:contact@bertrand-benoit.net>
 # Version: 2.0
 # Description: checks all episodes of a directory, and shows consecutive sequences.
 #              An option allows to request the same on all sub-directories of a directory.
