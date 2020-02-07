@@ -11,7 +11,6 @@
 #                General configuration.
 #####################################################
 export CATEGORY="checkEpisodes"
-export DEBUG_UTILITIES=0
 
 currentDir=$( dirname "$( command -v "$0" )" )
 export GLOBAL_CONFIG_FILE="$currentDir/default.conf"
@@ -86,6 +85,25 @@ done
 #####################################################
 #                Functions.
 #####################################################
+# Usage: extractEpisodeNumber <fileName>
+#  <fileName>: string corresponding to a [file]Name/Label to manage
+# Returns the episode number.
+function extractEpisodeNumber() {
+  # Important: starts to remove the extension of the file which can contain number, but
+  #  considering it should starts by a letter.
+  local _name="${1%.[a-zA-Z]*}" _result=""
+
+  _result=$( removeAllSpecifiedPartsFromString "$_name" "$REMOVE_FILENAME_MATCHING_PARTS" "1" \
+            |sed -e 's/^.*[Ss]\([0-9][0-9]*\)[ ]*[Ee]\([0-9][0-9-]*\)[^0-9]*$/\1/g;' )
+
+  _result=$( extractNumberSequence "$_result" |sed -e 's/^0*//g;')
+
+  [ "$debug" -eq 1 ] && printf "Extracted number sequence from name '%b' => '%b'" "$_name" "$_result" >&2
+
+  # Returns the formatted [file]Name/Label.
+  echo "$_result"
+}
+
 # usage : showEpisode <episode number> <position> <warning>
 # <position>: 1 for first, 2 for next, 0 otherwise.
 # <warning>: 1 if this is a warning (shown in red), 0 otherwise.
@@ -110,6 +128,8 @@ function showEpisode() {
 
   # Enhances text if needed.
   [ "$_position" -eq 2 ] && echo -ne "\n"
+
+  return 0
 }
 
 # usage: checkDirectory <directory>
@@ -122,8 +142,7 @@ function checkDirectory() {
   rm -f "$episodeNumberFile"
   while IFS= read -r filePath; do
     fileName=$( basename "$filePath" )
-    episodeNumber=$( extractNumberSequenceFromName "$fileName" "$REMOVE_FILENAME_MATCHING_PARTS" )
-    # TODO: add filename in file, and extracts it after that, to improve debug info
+    episodeNumber=$( extractEpisodeNumber "$fileName" )
     isCompoundedNumber "$episodeNumber" && echo "$episodeNumber" >> "$episodeNumberFile" && continue
     echo "" && warning "Unable to extract (single or compounded) episode number from '$fileName' (result: $episodeNumber)"
   done < <(find "$_directory" -maxdepth 1 -type f |grep -v "directory.lock" |grep -e "\/[^/]*[0-9][^/]*$")
@@ -141,7 +160,7 @@ function checkDirectory() {
   moreThanOneEpisode=0
   while IFS= read -r episodeNumberRaw; do
     # Prints information if in debug mode.
-    [ "$debug" = 1 ] && echo -ne " [found episode number '$episodeNumberRaw'] "
+    [ "$debug" -eq 1 ] && echo -ne " [found episode number '$episodeNumberRaw'] "
 
     # Manages potential '-' into episode number(s), taking the last one.
     if [ "$( grep -ce "-" <<< "$episodeNumberRaw")" -eq 0 ]; then
@@ -168,7 +187,6 @@ function checkDirectory() {
     elif [ "$currentNumber" -ge "$episodeNumber" ]; then
       # Continues if the current episode number has already been managed (if there is several
       #  files having the same number for instance).
-      currentNumber="${lastEpisodeNumber:-$episodeNumber}"
       continue
     fi
 
@@ -206,6 +224,8 @@ function checkDirectory() {
       echo ""
     fi
   fi
+
+  return 0
 }
 
 #####################################################
