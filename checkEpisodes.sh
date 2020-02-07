@@ -16,7 +16,10 @@ currentDir=$( dirname "$( command -v "$0" )" )
 export GLOBAL_CONFIG_FILE="$currentDir/default.conf"
 export CONFIG_FILE="${HOME:-/home/$( whoami )}/.config/checkEpisodes.conf"
 
-[ -s "$SCRIPTS_COMMON_PATH" ] && . "$SCRIPTS_COMMON_PATH"
+scriptsCommonUtilities="$currentDir/scripts-common/utilities.sh"
+[ ! -f "$scriptsCommonUtilities" ] && echo -e "ERROR: scripts-common utilities not found, you must initialize your git submodule once after you cloned the repository:\ngit submodule init\ngit submodule update" >&2 && exit 1
+# shellcheck disable=1090
+. "$scriptsCommonUtilities"
 
 checkAndSetConfig "file.episodeNumber" "$CONFIG_TYPE_OPTION"
 episodeNumberFile="$LAST_READ_CONFIG"
