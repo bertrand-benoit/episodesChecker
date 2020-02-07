@@ -42,13 +42,13 @@ color="$LAST_READ_CONFIG"
 #####################################################
 # usage : usage
 function usage() {
-  echo "Usage: $0 [-h|--help] --dir|--allDir <directory> [--checkFirst] [--showAllNumber] [--debug] [--nocolor]"
-  echo -e "-h|--help\tshow this help"
+  echo "Usage: $0 --dir|--allDir <directory> [--checkFirst] [--showAllNumber] [--nocolor] [--debug] [-h|--help]"
   echo -e "<directory>\tdirectory to manage (with --dir), or parent directory (with --allDir, to check all its sub-directories)"
-  echo -e "--debug\t\tshow found line and links and does nothing more"
-  echo -e "--nocolor\tdisable the warning color"
   echo -e "--checkFirst\tcheck first number which must be 1, show warning message if it is NOT the case"
   echo -e "--showAllNumber\tshow found number, in addition to missing ones (can be verbose)"
+  echo -e "--nocolor\tdisable the warning color"
+  echo -e "--debug\t\tshow found episode number"
+  echo -e "-h|--help\tshow this help"
 }
 
 debug=0
@@ -80,7 +80,7 @@ while [ "${1:-}" != "" ]; do
 done
 
 # Ensures needed variables are defined.
-[ -z "$directory" ] && usage && errorMessage "You must specify the directory to manage."
+[ -z "${directory:-}" ] && usage && errorMessage "You must specify the directory to manage."
 [ ! -d "$directory" ] && usage && errorMessage "The specified directory '$directory' does not exist."
 
 #####################################################
