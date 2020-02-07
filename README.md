@@ -1,5 +1,7 @@
 # Episodes number checker version 2.0.0
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/85136d73b7c3479ebbf0e3829c06f626)](https://www.codacy.com/manual/bertrand-benoit/episodesChecker?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=bertrand-benoit/episodesChecker&amp;utm_campaign=Badge_Grade)
+
 This is a free GNU/Bash tool allowing to check all episodes of a specified directory, and show missing numbers.
 Some options allow to show found numbers in addition (can be verbose), and to work on all sub-directories of a specified directory.
 
