@@ -1,3 +1,5 @@
+:warning: This project is now hosted on [Gitlab](https://gitlab.com/bertrand-benoit/episodesChecker); switch to it to get newer versions.
+
 # Episodes number checker version 2.0.0
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/85136d73b7c3479ebbf0e3829c06f626)](https://www.codacy.com/manual/bertrand-benoit/episodesChecker?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=bertrand-benoit/episodesChecker&amp;utm_campaign=Badge_Grade)
