@@ -5,7 +5,7 @@
 This is a free GNU/Bash tool allowing to check all episodes of a specified directory, and show missing numbers.
 Some options allow to show found numbers in addition (can be verbose), and to work on all sub-directories of a specified directory.
 
-This script uses my [scripts-common](https://github.com/bertrand-benoit/scripts-common) project, you can find on GitHub.
+This script uses my [scripts-common](https://gitlab.com/bertrand-benoit/scripts-common) project.
 
 ## First time you clone this repository
 After the first time you clone this repository, you need to initialize git submodule:
@@ -14,10 +14,10 @@ git submodule init
 git submodule update
 ```
 
-This way, [scripts-common](https://github.com/bertrand-benoit/scripts-common) project will be available and you can use this tool.
+This way, [scripts-common](https://gitlab.com/bertrand-benoit/scripts-common) project will be available and you can use this tool.
 
 ## Configuration files
-This tools uses the configuration file feature of the [scripts-common](https://github.com/bertrand-benoit/scripts-common) project.
+This tools uses the configuration file feature of the [scripts-common](https://gitlab.com/bertrand-benoit/scripts-common) project.
 
 The global configuration file, called **default.conf**, is in the root directory of this repository.
 It contains default configuration for this tool, and should NOT be edited.
@@ -81,7 +81,7 @@ Check missing episodes from a specified directory, and warn if first found episo
 
 ## Contributing
 Don't hesitate to [contribute](https://opensource.guide/how-to-contribute/) or to contact me if you want to improve the project.
-You can [report issues or request features](https://github.com/bertrand-benoit/episodesChecker/issues) and propose [pull requests](https://github.com/bertrand-benoit/episodesChecker/pulls).
+You can [report issues or request features](https://gitlab.com/bertrand-benoit/episodesChecker/issues) and propose [merge requests](https://gitlab.com/bertrand-benoit/episodesChecker/merge_requests).
 
 ## Versioning
 The versioning scheme we use is [SemVer](http://semver.org/).
